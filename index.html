@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>OP-Flow-Validator</title>
+
+  <!-- Estilos -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- jsPDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+
+<body>
+<div class="layout">
+
+  <!-- ================= FORMULÁRIO ================= -->
+  <div class="formulario">
+    <h1>Perfis Profissionais e Currículos</h1>
+
+    <!-- Nome -->
+    <h2 class="secao">Nome Completo</h2>
+    <input type="text" id="nomeCompleto" placeholder="Digite seu nome completo">
+
+    <h2 class="secao">Subtítulo (Opcional)</h2>
+    <input type="text" id="subtitulo" placeholder="Ex.: Estudante de Engenharia de Software">
+
+    <!-- Foto -->
+    <h2 class="secao">Foto (Opcional)</h2>
+    <input type="file" id="fotoCandidato" accept="image/*">
+    <button type="button" class="btn-remover" onclick="removerFoto()">Remover Foto</button>
+
+    <!-- Contato -->
+    <h2 class="secao">Dados de Contato</h2>
+    <input type="number" id="idade" placeholder="Idade (Opcional)" min="0">
+    <input type="tel" id="telefone" placeholder="Telefone (00) 99999-9999">
+    <input type="email" id="email" placeholder="E-mail">
+    <input type="text" id="localizacao" placeholder="Localização">
+    <input type="text" id="linkedin" placeholder="LinkedIn">
+    <input type="text" id="portfolio" placeholder="Portfólio (Opcional)">
+    <input type="text" id="pretensaoSalarial" placeholder="Pretensão Ex: R$ 5.000,00 (Opcional)">
+
+    <!-- Objetivo -->
+    <h2 class="secao">Objetivo</h2>
+    <textarea id="objetivo" rows="3" placeholder="Descreva seu objetivo profissional"></textarea>
+
+    <!-- Projetos -->
+    <h2 class="secao">Projetos Acadêmicos</h2>
+    <div id="projetos"></div>
+    <button type="button" onclick="addProjeto()">+ Adicionar Projeto</button>
+
+    <!-- Experiência -->
+    <h2 class="secao">Experiência Profissional</h2>
+    <div id="experiencias"></div>
+    <button type="button" onclick="addExperiencia()">+ Adicionar Experiência</button>
+
+    <!-- Formação -->
+    <h2 class="secao">Formação Acadêmica</h2>
+    <div id="formacoes"></div>
+    <button type="button" onclick="addFormacao()">+ Adicionar Formação</button>
+
+    <!-- Habilidades -->
+    <h2 class="secao">Habilidades Técnicas</h2>
+    <div id="habilidades"></div>
+    <button type="button" onclick="addHabilidade()">+ Adicionar Habilidade</button>
+
+    <!-- Cursos -->
+    <h2 class="secao">Cursos</h2>
+    <div id="cursos"></div>
+    <button type="button" onclick="addCurso()">+ Adicionar Curso</button>
+
+    <!-- Idiomas -->
+    <h2 class="secao">Idiomas</h2>
+    <div id="idiomas"></div>
+    <button type="button" onclick="addIdioma()">+ Adicionar Idioma</button>
+
+    <!-- Palavras‑Chave -->
+<h2 class="secao">Termos da vaga (para adaptar o currículo)</h2>
+
+<p>
+  Cole aqui termos da descrição da vaga (ferramentas, processos, certificações).
+  Use apenas o que você realmente domina e integre naturalmente nas experiências/projetos com contexto e resultado.
+</p>
+
+<p class="aviso-palavras">
+  Dica: Evite “lista solta” repetitiva. Prefira usar os termos dentro das atividades e resultados (ex.: “monitoramento de KPIs…”, “inventário cíclico…”, “WMS…”).
+</p>
+
+<label>
+  <input type="checkbox" id="ativarPalavrasChaves" onchange="togglePalavrasChaves()">
+  Ativar assistente de adaptação
+</label>
+
+<div id="blocoPalavrasChaves" style="display:none; margin-top:10px;">
+  <textarea id="textoPalavrasChaves"
+    placeholder="Cole termos aqui (separe por vírgula, ponto e vírgula ou quebra de linha)"
+    rows="4" style="width:100%;"></textarea>
+  <div id="sugestoesPalavras"></div>
+
+  <!-- ✅ NOVO: área de sugestões -->
+  <div id="sugestoesPalavras"
+       style="margin-top:10px; font-size:12px; color:#333;"></div>
+
+  <small style="display:block; margin-top:6px; color:#666;">
+    *Este campo é para orientar a adaptação do currículo. Não é exportado automaticamente para o PDF.
+  </small>
+</div>
+
+    <!-- Ações -->
+    <div style="margin-top:20px; text-align:center;">
+      <button type="button" onclick="gerarPDF()">Gerar PDF</button>
+      <button type="button" onclick="salvarComoTXT()">Salvar como TXT</button>
+      <input type="file" id="importarTXT" accept=".txt" onchange="importarTXT(event)">
+      <br>
+      <span id="contadorPaginas">Estimativa: 1 página A4</span>
+    </div>
+  </div>
+
+  <!-- ================= PREVIEW ================= -->
+  <div class="preview">
+    <div class="preview-header"></div>
+    <div id="previewCurriculo">
+      <p style="color:#777; font-size:12px;">
+        Preencha os campos ao lado para visualizar seu currículo aqui.
+      </p>
+    </div>
+  </div>
+
+</div>
+
+<!-- Script principal -->
+<script src="script.js"></script>
+
+<!-- Máscara de Telefone -->
+<script>
+  document.getElementById("telefone").addEventListener("input", function(e) {
+    let valor = e.target.value.replace(/\D/g, "");
+    if (valor.length > 11) valor = valor.slice(0, 11);
+    if (valor.length >= 2) valor = "(" + valor.slice(0,2) + ") " + valor.slice(2);
+    if (valor.length >= 8) valor = valor.slice(0,9) + "-" + valor.slice(9);
+    e.target.value = valor;
+  });
+</script>
+
+</body>
+</html>
+``
