@@ -84,4 +84,4 @@ Um usuário optaria por esta ferramenta em vez de outra porque ela:
 ## 8. Conclusão
 Esta ferramenta se posiciona como uma solução prática, ética e acessível para criação de currículos profissionais. Ao unir simplicidade, inteligência textual e gratuidade, ela se destaca como uma alternativa sólida às plataformas tradicionais, entregando valor real para quem busca melhores oportunidades no mercado de trabalho.
 
-(Link)(https://jkkbr.github.io/curriculo-for-ats/)
+[Curriculo-for-ats](https://jkkbr.github.io/curriculo-for-ats/)
