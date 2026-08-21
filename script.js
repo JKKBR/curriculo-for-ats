@@ -157,6 +157,15 @@ function toggleIdiomaOutro(select) {
   outroInput.style.display = select.value === "outro" ? "block" : "none";
 }
 
+  function formatarInformacoesComplementares(texto) {
+  return texto
+    .split("\n")
+    .map(l => l.trim())
+    .filter(Boolean)
+    .map(l => `• ${l}`)
+    .join("\n");
+}
+
 // Remover foto com confirmação
 function removerFoto() {
   if (confirm("Você realmente quer remover a foto?")) {
