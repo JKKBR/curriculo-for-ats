@@ -39,7 +39,7 @@ function addProjeto() {
   });
   atualizarPreview();
 }
-
+// Função genérica para confirmar exclusão do Resumo Profissional
 function limparResumoProfissional() {
   if (confirm("Você realmente deseja excluir o Resumo Profissional?")) {
     document.getElementById("resumoProfissional").value = "";
