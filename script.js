@@ -40,6 +40,13 @@ function addProjeto() {
   atualizarPreview();
 }
 
+function limparResumoProfissional() {
+  if (confirm("Você realmente deseja excluir o Resumo Profissional?")) {
+    document.getElementById("resumoProfissional").value = "";
+    atualizarPreview();
+  }
+}
+
 function addExperiencia() {
   const div = document.createElement("div");
   div.innerHTML = `
