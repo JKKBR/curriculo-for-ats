@@ -297,6 +297,18 @@ function atualizarPreview() {
     html += `<h2>Objetivo</h2><p style="font-size:12px; line-height:1.3;">${objetivo}</p>`;
   }
 
+    // Resumo Profissional
+  const resumoProfissional =
+(document.getElementById("resumoProfissional") || {}).value || "";
+
+if (resumoProfissional.trim()) {
+  html += `
+### Resumo Profissional
+
+${resumoProfissional}
+`;
+}
+
   // Projetos Acadêmicos
 const projetos = Array.from(document.querySelectorAll("#projetos div")).map(div => {
   const titulo = (div.querySelector("input[placeholder='Título do Projeto']") || {}).value || "";
