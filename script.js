@@ -747,18 +747,15 @@ if (idade || telefone || email || localizacao || linkedin || portfolio || preten
     y = escreverTexto(objetivo, 12, 180, y, doc);
     y += 8;
   }
-
+  
   // Resumo Profissional
+  const resumoProfissional =
+  document.getElementById("resumoProfissional")?.value.trim() || "";
   if (resumoProfissional) {
   doc.setFontSize(13);
   doc.setFont("helvetica", "bold");
   y = escreverTexto(
-    "Resumo Profissional:",
-    10,
-    180,
-    y,
-    doc
-  );
+    "Resumo Profissional:", 10, 180, y, doc);
   doc.setFont("helvetica", "normal");
   y = escreverTexto(
     resumoProfissional,
@@ -991,6 +988,8 @@ if (descricao) {
     y += 8;
   }
 // Informacoes Complementares
+  const infoComplementares =5
+document.getElementById("informacoesComplementares")?.value.trim() || "";
   if (infoComplementares.trim()) {
   doc.setFontSize(13);
   doc.setFont("helvetica", "bold");
