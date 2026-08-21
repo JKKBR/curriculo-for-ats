@@ -748,6 +748,30 @@ if (idade || telefone || email || localizacao || linkedin || portfolio || preten
     y += 8;
   }
 
+  // Resumo Profissional
+  if (resumoProfissional) {
+  doc.setFontSize(13);
+  doc.setFont("helvetica", "bold");
+  y = escreverTexto(
+    "Resumo Profissional:",
+    10,
+    180,
+    y,
+    doc
+  );
+  doc.setFont("helvetica", "normal");
+  y = escreverTexto(
+    resumoProfissional,
+    12,
+    170,
+    y,
+    doc
+  );
+
+  y += 8;
+}
+
+
   // Projetos Acadêmicos
 let projetos = Array.from(document.querySelectorAll("#projetos div"));
 if (projetos.some(p => {
@@ -966,6 +990,25 @@ if (descricao) {
     });
     y += 8;
   }
+// Informacoes Complementares
+  if (infoComplementares.trim()) {
+  doc.setFontSize(13);
+  doc.setFont("helvetica", "bold");
+  y = escreverTexto(
+    "Informações Complementares:",
+    10,
+    180,
+    y,
+    doc
+  );
+  doc.setFont("helvetica", "normal");
+  formatarInformacoesComplementares(infoComplementares)
+  .split("\n")
+  .forEach(item => {
+    y = escreverTexto(item, 12, 170, y, doc);
+  });
+  y += 8;
+}
 
   // Palavras‑Chave (se ativado)
   const ativarPK = document.getElementById("ativarPalavrasChaves")?.checked;
