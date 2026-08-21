@@ -456,6 +456,18 @@ if (experiencias) {
     html += `<h2>Idiomas</h2><ul style="font-size:12px; line-height:1.2; margin:2px 0;">${idiomas}</ul>`;
   }
 
+  // Informacoes Complementares
+  const infoComplementares =
+document.getElementById("informacoesComplementares")?.value || "";
+if (infoComplementares.trim()) {
+  const textoFormatado =
+  formatarInformacoesComplementares(infoComplementares);
+  html += `
+### Informações Complementares
+${textoFormatado}
+`;
+}
+
  // Atualiza preview e contador
 document.getElementById("previewCurriculo").innerHTML = html;
 atualizarSugestoesPalavras();
