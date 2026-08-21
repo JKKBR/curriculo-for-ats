@@ -1221,6 +1221,12 @@ function importarTXT(event) {
         document.getElementById("objetivo").value += linha + "\n";
       }
 
+      // Resumo Profissional
+    if (resumoProfissional.trim()) {
+  conteudo +=
+  `\nResumo Profissional:\n${resumoProfissional}\n`;
+  }
+
 // Projetos
 else if (secaoAtual === "projetos" && linha.trim().startsWith("-")) {
   addProjeto();
@@ -1393,6 +1399,14 @@ else if (secaoAtual === "idioma" && (linha.trim().startsWith("-") || linha.trim(
         else if (nivelTxt === "nativo") ultimaDiv.querySelector(".nivel").value = "nativo";
         else if (nivelTxt === "técnico") ultimaDiv.querySelector(".nivel").value = "tecnico";
       }
+      
+      // Info Complementares
+      if (infoComplementares.trim()) {
+  conteudo += "\nInformações Complementares:\n";
+  conteudo +=
+  formatarInformacoesComplementares(infoComplementares);
+  conteudo += "\n";
+}
     });
 
     atualizarPreview();
