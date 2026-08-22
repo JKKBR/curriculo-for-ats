@@ -475,8 +475,19 @@ atualizarEstimativa();
 }
 
 // Eventos para atualizar preview em tempo real
-["nomeCompleto","subtitulo","telefone","email","localizacao","linkedin","portfolio","objetivo"].forEach(id => {
-  document.getElementById(id).addEventListener("input", atualizarPreview);
+[
+  "nomeCompleto",
+  "subtitulo",
+  "telefone",
+  "email",
+  "localizacao",
+  "linkedin",
+  "portfolio",
+  "objetivo",
+  "resumoProfissional",
+  "informacoesComplementares"
+].forEach(id => {
+  document.getElementById(id)?.addEventListener("input", atualizarPreview);
 });
 document.querySelectorAll("#projetos input, #projetos textarea").forEach(el => {
   el.addEventListener("input", atualizarPreview);
@@ -1026,129 +1037,293 @@ document.getElementById("informacoesComplementares")?.value.trim() || "";
     y += 8;
   }
 }
+// Formata datas de emprego como mês/ano
+function formatarMesAno(dataStr) {
+  if (!dataStr) return "";
+
+  const partes = dataStr.split("-");
+
+  // Entrada de campo type="date": AAAA-MM-DD
+  if (partes.length >= 2) {
+    return `${partes[1]}/${partes[0]}`;
+  }
+
+  return dataStr;
+}
+
+// Converte MM/AAAA para um valor aceito por input type="date"
+function converterMesAnoParaData(valor) {
+  if (!valor) return "";
+
+  const correspondencia = valor.trim().match(/^(\d{2})\/(\d{4})$/);
+
+  if (correspondencia) {
+    return `${correspondencia[2]}-${correspondencia[1]}-01`;
+  }
+
+  return valor;
+}
+
+
 // Função para salvar como TXT
 function salvarComoTXT() {
   const nomeCompletoEl = document.getElementById("nomeCompleto");
   const subtituloEl = document.getElementById("subtitulo");
   const pretensaoEl = document.getElementById("pretensaoSalarial");
 
-  const nomeCompleto = nomeCompletoEl ? nomeCompletoEl.value.trim() || "curriculo" : "curriculo";
-  const subtitulo = subtituloEl ? subtituloEl.value.trim() : "";
-  const pretensao = pretensaoEl ? pretensaoEl.value.trim() : "";
+  const nomeCompleto = nomeCompletoEl
+    ? nomeCompletoEl.value.trim() || "curriculo"
+    : "curriculo";
+
+  const subtitulo = subtituloEl
+    ? subtituloEl.value.trim()
+    : "";
+
+  const pretensao = pretensaoEl
+    ? pretensaoEl.value.trim()
+    : "";
+
+  const objetivo =
+    document.getElementById("objetivo")?.value.trim() || "";
+
+  const resumoProfissional =
+    document.getElementById("resumoProfissional")?.value.trim() || "";
+
+  const infoComplementares =
+    document.getElementById("informacoesComplementares")?.value.trim() || "";
 
   let conteudo = "";
+
   conteudo += `Nome: ${nomeCompleto}\n`;
-  if (subtitulo) conteudo += `Subtítulo: ${subtitulo}\n`;
-  conteudo += `Idade: ${(document.getElementById("idade") || {}).value || ""}\n`;
-  conteudo += `Telefone: ${(document.getElementById("telefone") || {}).value || ""}\n`;
-  conteudo += `E-mail: ${(document.getElementById("email") || {}).value || ""}\n`;
-  conteudo += `Localização: ${(document.getElementById("localizacao") || {}).value || ""}\n`;
-  conteudo += `LinkedIn: ${(document.getElementById("linkedin") || {}).value || ""}\n`;
-  conteudo += `Portfólio: ${(document.getElementById("portfolio") || {}).value || ""}\n`;
 
-  if (pretensao) conteudo += `Pretensão Salarial: ${pretensao}\n`;
+  if (subtitulo) {
+    conteudo += `Subtítulo: ${subtitulo}\n`;
+  }
 
-  conteudo += `\nObjetivo:\n${(document.getElementById("objetivo") || {}).value || ""}\n\n`;
+  const idade = document.getElementById("idade")?.value.trim() || "";
+  const telefone = document.getElementById("telefone")?.value.trim() || "";
+  const email = document.getElementById("email")?.value.trim() || "";
+  const localizacao =
+    document.getElementById("localizacao")?.value.trim() || "";
+  const linkedin =
+    document.getElementById("linkedin")?.value.trim() || "";
+  const portfolio =
+    document.getElementById("portfolio")?.value.trim() || "";
+
+  if (idade) conteudo += `Idade: ${idade}\n`;
+  if (telefone) conteudo += `Telefone: ${telefone}\n`;
+  if (email) conteudo += `E-mail: ${email}\n`;
+  if (localizacao) conteudo += `Localização: ${localizacao}\n`;
+  if (linkedin) conteudo += `LinkedIn: ${linkedin}\n`;
+  if (portfolio) conteudo += `Portfólio: ${portfolio}\n`;
+
+  if (pretensao) {
+    conteudo += `Pretensão Salarial: ${pretensao}\n`;
+  }
+
+  if (objetivo) {
+    conteudo += `\nObjetivo:\n${objetivo}\n`;
+  }
+
+  if (resumoProfissional) {
+    conteudo += `\nResumo Profissional:\n${resumoProfissional}\n`;
+  }
 
   // Projetos Acadêmicos
-  conteudo += "Projetos Acadêmicos:\n";
-  Array.from(document.querySelectorAll("#projetos div")).forEach(p => {
-    const titulo = (p.querySelector("input[placeholder='Título do Projeto']") || {}).value || "";
-    const objetivo = (p.querySelector("textarea") || {}).value || "";
-    const tecnologias = (p.querySelector("input[placeholder='Tecnologias/Ferramentas']") || {}).value || "";
-    const link = (p.querySelector("input[placeholder='Link do Projeto']") || {}).value || "";
+  const projetos = [];
 
-    if (titulo || objetivo || tecnologias || link) {
-      conteudo += `- ${titulo}\n`;
-      if (objetivo) {
-  const objetivoComBullets = bulletizarFrasesMaiusculas(objetivo);
+  document.querySelectorAll("#projetos div").forEach(p => {
+    const titulo =
+      p.querySelector("input[placeholder='Título do Projeto']")?.value.trim() || "";
 
-  // Primeira linha com "Objetivo:" e as próximas linhas continuam normalmente
-  const linhasObj = objetivoComBullets.split("\n");
-  conteudo += `  Objetivo: ${linhasObj.shift() || ""}\n`;
-  linhasObj.forEach(l => conteudo += `${l}\n`);
-}
+    const objetivoProjeto =
+      p.querySelector("textarea")?.value.trim() || "";
 
-      if (tecnologias) conteudo += `  Tecnologias: ${tecnologias}\n`;
-      if (link) conteudo += `  Link: ${link}\n`;
+    const tecnologias =
+      p.querySelector("input[placeholder='Tecnologias/Ferramentas']")
+        ?.value.trim() || "";
+
+    const link =
+      p.querySelector("input[placeholder='Link do Projeto']")
+        ?.value.trim() || "";
+
+    if (!titulo && !objetivoProjeto && !tecnologias && !link) return;
+
+    let projeto = `- ${titulo}\n`;
+
+    if (objetivoProjeto) {
+      const objetivoComBullets =
+        bulletizarFrasesMaiusculas(objetivoProjeto);
+
+      const linhasObj = objetivoComBullets.split("\n");
+
+      projeto += `  Objetivo: ${linhasObj.shift() || ""}\n`;
+
+      linhasObj.forEach(linha => {
+        projeto += `${linha}\n`;
+      });
     }
-  });
-  conteudo += "\n";
 
-  // Experiências
-  conteudo += "Experiência Profissional:\n";
-  Array.from(document.querySelectorAll("#experiencias div")).forEach(exp => {
-    const empresa = (exp.querySelector("input[placeholder='Empresa']") || {}).value || "";
-    const cargo = (exp.querySelector("input[placeholder='Cargo']") || {}).value || "";
-    const inicio = (exp.querySelector(".inicio") || {}).value || "";
-    const fim = (exp.querySelector(".fim") || {}).value || "";
-    const descricao = (exp.querySelector("textarea") || {}).value || "";
-    if (empresa || cargo || descricao) {
-      conteudo += `- ${cargo} em ${empresa} (${inicio} - ${fim})\n${descricao}\n`;
+    if (tecnologias) {
+      projeto += `  Tecnologias: ${tecnologias}\n`;
     }
-  });
-  conteudo += "\n";
 
-  // Formação
-  conteudo += "Formação Acadêmica:\n";
-  Array.from(document.querySelectorAll("#formacoes div")).forEach(f => {
-    const curso = (f.querySelector("input[placeholder='Curso']") || {}).value || "";
-    const instituicao = (f.querySelector("input[placeholder='Instituição']") || {}).value || "";
-    const ano = (f.querySelector(".ano") || {}).value || "";
-    const termino = (f.querySelector(".termino") || {}).value || "";
-    const status = (f.querySelector("select") || {}).value || "";
-
-    if (status === "concluido" && (curso || instituicao)) {
-      conteudo += `- ${curso} - ${instituicao} (${ano})\n`;
-    } else if (status === "cursando" && (curso || instituicao)) {
-      conteudo += `- ${curso} - ${instituicao} (Previsão: ${termino})\n`;
-    } else if (curso || instituicao) {
-      conteudo += `- ${curso} - ${instituicao}\n`;
+    if (link) {
+      projeto += `  Link: ${link}\n`;
     }
+
+    projetos.push(projeto);
   });
-  conteudo += "\n";
 
-  // Habilidades Técnicas (compatível com seu addHabilidade atual)
-conteudo += "Habilidades Técnicas:\n";
-const habilidades = Array.from(document.querySelectorAll("#habilidades input"))
-  .map(i => i.value.trim())
-  .filter(Boolean);
+  if (projetos.length) {
+    conteudo += `\nProjetos Acadêmicos:\n${projetos.join("")}`;
+  }
 
-habilidades.forEach(hab => {
-  conteudo += `- ${hab}\n`;
-});
-conteudo += "\n";
+  // Experiência Profissional
+  const experiencias = [];
+
+  document.querySelectorAll("#experiencias div").forEach(exp => {
+    const empresa =
+      exp.querySelector("input[placeholder='Empresa']")?.value.trim() || "";
+
+    const cargo =
+      exp.querySelector("input[placeholder='Cargo']")?.value.trim() || "";
+
+    const inicio = formatarMesAno(
+      exp.querySelector(".inicio")?.value || ""
+    );
+
+    const fim = formatarMesAno(
+      exp.querySelector(".fim")?.value || ""
+    );
+
+    const status =
+      exp.querySelector("select")?.value || "";
+
+    const descricao =
+      exp.querySelector("textarea")?.value.trim() || "";
+
+    if (!empresa && !cargo && !descricao) return;
+
+    const periodoFinal =
+      status === "atual" ? "o momento" : fim;
+
+    let experiencia =
+      `- ${cargo} em ${empresa} (${inicio} até ${periodoFinal})\n`;
+
+    if (descricao) {
+      experiencia += `${descricao}\n`;
+    }
+
+    experiencias.push(experiencia);
+  });
+
+  if (experiencias.length) {
+    conteudo +=
+      `\nExperiência Profissional:\n${experiencias.join("")}`;
+  }
+
+  // Formação Acadêmica
+  const formacoes = [];
+
+  document.querySelectorAll("#formacoes div").forEach(f => {
+    const curso =
+      f.querySelector("input[placeholder='Curso']")?.value.trim() || "";
+
+    const instituicao =
+      f.querySelector("input[placeholder='Instituição']")
+        ?.value.trim() || "";
+
+    const ano = f.querySelector(".ano")?.value || "";
+    const termino = f.querySelector(".termino")?.value || "";
+    const status = f.querySelector("select")?.value || "";
+
+    if (!curso && !instituicao) return;
+
+    let texto = `- ${curso} - ${instituicao}`;
+
+    if (status === "concluido" && ano) {
+      texto += ` (${ano})`;
+    }
+
+    if (status === "cursando" && termino) {
+      texto += ` (Previsão: ${termino})`;
+    }
+
+    formacoes.push(`${texto}\n`);
+  });
+
+  if (formacoes.length) {
+    conteudo += `\nFormação Acadêmica:\n${formacoes.join("")}`;
+  }
+
+  // Habilidades Técnicas
+  const habilidades = Array.from(
+    document.querySelectorAll("#habilidades input")
+  )
+    .map(input => input.value.trim())
+    .filter(Boolean);
+
+  if (habilidades.length) {
+    conteudo += "\nHabilidades Técnicas:\n";
+
+    habilidades.forEach(habilidade => {
+      conteudo += `- ${habilidade}\n`;
+    });
+  }
 
   // Cursos
-  conteudo += "Cursos:\n";
-  Array.from(document.querySelectorAll("#cursos div")).forEach(c => {
-    const nomeCurso = (c.querySelector("input[placeholder='Nome do Curso']") || {}).value || "";
-    const instituicao = (c.querySelector("input[placeholder='Instituição']") || {}).value || "";
-    const ano = (c.querySelector(".ano") || {}).value || "";
-    const termino = (c.querySelector(".termino") || {}).value || "";
-    const status = (c.querySelector("select") || {}).value || "";
+  const cursos = [];
 
-    if (status === "concluido" && (nomeCurso || instituicao)) {
-      conteudo += `- ${nomeCurso} - ${instituicao} (${ano})\n`;
-    } else if (status === "cursando" && (nomeCurso || instituicao)) {
-      conteudo += `- ${nomeCurso} - ${instituicao} (Previsão: ${termino})\n`;
-    } else if (nomeCurso || instituicao) {
-      conteudo += `- ${nomeCurso} - ${instituicao}\n`;
+  document.querySelectorAll("#cursos div").forEach(c => {
+    const nomeCurso =
+      c.querySelector("input[placeholder='Nome do Curso']")
+        ?.value.trim() || "";
+
+    const instituicao =
+      c.querySelector("input[placeholder='Instituição']")
+        ?.value.trim() || "";
+
+    const ano = c.querySelector(".ano")?.value || "";
+    const termino = c.querySelector(".termino")?.value || "";
+    const status = c.querySelector("select")?.value || "";
+
+    if (!nomeCurso && !instituicao) return;
+
+    let texto = `- ${nomeCurso} - ${instituicao}`;
+
+    if (status === "concluido" && ano) {
+      texto += ` (${ano})`;
     }
+
+    if (status === "cursando" && termino) {
+      texto += ` (Previsão: ${termino})`;
+    }
+
+    cursos.push(`${texto}\n`);
   });
-  conteudo += "\n";
+
+  if (cursos.length) {
+    conteudo += `\nCursos:\n${cursos.join("")}`;
+  }
 
   // Idiomas
-  conteudo += "Idiomas:\n";
-  Array.from(document.querySelectorAll("#idiomas div")).forEach(i => {
-    let idiomaSelect = (i.querySelector(".idioma") || {}).value || "";
-    let nivel = (i.querySelector(".nivel") || {}).value || "";
-    const outro = (i.querySelector(".idiomaOutro") || {}).value || "";
+  const idiomas = [];
 
-    if (idiomaSelect === "portugues") idiomaSelect = "Português";
-    else if (idiomaSelect === "ingles") idiomaSelect = "Inglês";
-    else if (idiomaSelect === "espanhol") idiomaSelect = "Espanhol";
-    else if (idiomaSelect === "outro") idiomaSelect = outro;
+  document.querySelectorAll("#idiomas div").forEach(i => {
+    let idioma =
+      i.querySelector(".idioma")?.value || "";
+
+    let nivel =
+      i.querySelector(".nivel")?.value || "";
+
+    const outro =
+      i.querySelector(".idiomaOutro")?.value.trim() || "";
+
+    if (idioma === "portugues") idioma = "Português";
+    else if (idioma === "ingles") idioma = "Inglês";
+    else if (idioma === "espanhol") idioma = "Espanhol";
+    else if (idioma === "outro") idioma = outro;
 
     if (nivel === "basico") nivel = "Básico";
     else if (nivel === "intermediario") nivel = "Intermediário";
@@ -1156,17 +1331,41 @@ conteudo += "\n";
     else if (nivel === "nativo") nivel = "Nativo";
     else if (nivel === "tecnico") nivel = "Técnico";
 
-    if (idiomaSelect) conteudo += `- ${idiomaSelect.normalize("NFC")} (${nivel})\n`;
+    if (idioma) {
+      idiomas.push(`- ${idioma.normalize("NFC")} (${nivel})\n`);
+    }
   });
-  conteudo += "\n";
-    
+
+  if (idiomas.length) {
+    conteudo += `\nIdiomas:\n${idiomas.join("")}`;
+  }
+
+  // Informações Complementares
+  if (infoComplementares) {
+    conteudo += "\nInformações Complementares:\n";
+    conteudo += formatarInformacoesComplementares(infoComplementares);
+    conteudo += "\n";
+  }
+
   // Exportar arquivo TXT
-  const blob = new Blob([conteudo], { type: "text/plain;charset=utf-8" });
+  const blob = new Blob(
+    [conteudo],
+    { type: "text/plain;charset=utf-8" }
+  );
+
   const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
+  const url = URL.createObjectURL(blob);
+
+  link.href = url;
   link.download = `${nomeCompleto}.txt`;
+
+  document.body.appendChild(link);
   link.click();
+  link.remove();
+
+  URL.revokeObjectURL(url);
 }
+
 
 // Função para importar TXT
 function importarTXT(event) {
@@ -1174,241 +1373,472 @@ function importarTXT(event) {
   if (!file) return;
 
   const reader = new FileReader();
+
   reader.onload = function(e) {
     const linhas = e.target.result.split(/\r?\n/);
+
     let secaoAtual = "";
     let ultimaDiv = null;
 
+    document.getElementById("objetivo").value = "";
+    document.getElementById("resumoProfissional").value = "";
+    document.getElementById("informacoesComplementares").value = "";
+
     linhas.forEach(linha => {
+      const linhaLimpa = linha.trim();
+
       if (linha.startsWith("Nome:")) {
-        document.getElementById("nomeCompleto").value = linha.replace("Nome:", "").trim();
+        document.getElementById("nomeCompleto").value =
+          linha.replace("Nome:", "").trim();
       }
+
       else if (linha.startsWith("Subtítulo:")) {
-        document.getElementById("subtitulo").value = linha.replace("Subtítulo:", "").trim();
+        document.getElementById("subtitulo").value =
+          linha.replace("Subtítulo:", "").trim();
       }
+
       else if (linha.startsWith("Idade:")) {
-        document.getElementById("idade").value = linha.replace("Idade:", "").trim();
+        document.getElementById("idade").value =
+          linha.replace("Idade:", "").trim();
       }
+
       else if (linha.startsWith("Telefone:")) {
-        document.getElementById("telefone").value = linha.replace("Telefone:", "").trim();
+        document.getElementById("telefone").value =
+          linha.replace("Telefone:", "").trim();
       }
+
       else if (linha.startsWith("E-mail:")) {
-        document.getElementById("email").value = linha.replace("E-mail:", "").trim();
+        document.getElementById("email").value =
+          linha.replace("E-mail:", "").trim();
       }
+
       else if (linha.startsWith("Localização:")) {
-        document.getElementById("localizacao").value = linha.replace("Localização:", "").trim();
+        document.getElementById("localizacao").value =
+          linha.replace("Localização:", "").trim();
       }
+
       else if (linha.startsWith("LinkedIn:")) {
-        document.getElementById("linkedin").value = linha.replace("LinkedIn:", "").trim();
+        document.getElementById("linkedin").value =
+          linha.replace("LinkedIn:", "").trim();
       }
+
       else if (linha.startsWith("Portfólio:")) {
-        document.getElementById("portfolio").value = linha.replace("Portfólio:", "").trim();
+        document.getElementById("portfolio").value =
+          linha.replace("Portfólio:", "").trim();
       }
+
       else if (linha.startsWith("Pretensão Salarial:")) {
-        document.getElementById("pretensaoSalarial").value = linha.replace("Pretensão Salarial:", "").trim();
+        document.getElementById("pretensaoSalarial").value =
+          linha.replace("Pretensão Salarial:", "").trim();
       }
-      else if (linha.startsWith("Objetivo:")) secaoAtual = "objetivo";
-      else if (linha.startsWith("Projetos Acadêmicos:")) secaoAtual = "projetos";
-      else if (linha.startsWith("Experiência Profissional:")) secaoAtual = "experiencia";
-      else if (linha.startsWith("Formação Acadêmica:")) secaoAtual = "formacao";
-      else if (linha.startsWith("Habilidades Técnicas:")) secaoAtual = "habilidade";
-      else if (linha.startsWith("Cursos:")) secaoAtual = "curso";
-      else if (linha.startsWith("Idiomas:")) secaoAtual = "idioma";
+
+      else if (linhaLimpa === "Objetivo:") {
+        secaoAtual = "objetivo";
+        ultimaDiv = null;
+      }
+
+      else if (linhaLimpa === "Resumo Profissional:") {
+        secaoAtual = "resumo";
+        ultimaDiv = null;
+      }
+
+      else if (linhaLimpa === "Projetos Acadêmicos:") {
+        secaoAtual = "projetos";
+        ultimaDiv = null;
+      }
+
+      else if (linhaLimpa === "Experiência Profissional:") {
+        secaoAtual = "experiencia";
+        ultimaDiv = null;
+      }
+
+      else if (linhaLimpa === "Formação Acadêmica:") {
+        secaoAtual = "formacao";
+        ultimaDiv = null;
+      }
+
+      else if (linhaLimpa === "Habilidades Técnicas:") {
+        secaoAtual = "habilidade";
+        ultimaDiv = null;
+      }
+
+      else if (linhaLimpa === "Cursos:") {
+        secaoAtual = "curso";
+        ultimaDiv = null;
+      }
+
+      else if (linhaLimpa === "Idiomas:") {
+        secaoAtual = "idioma";
+        ultimaDiv = null;
+      }
+
+      else if (linhaLimpa === "Informações Complementares:") {
+        secaoAtual = "informacoesComplementares";
+        ultimaDiv = null;
+      }
 
       // Objetivo
-      else if (secaoAtual === "objetivo" && linha.trim() !== "") {
-        document.getElementById("objetivo").value += linha + "\n";
+      else if (secaoAtual === "objetivo" && linhaLimpa) {
+        const campo = document.getElementById("objetivo");
+        campo.value += (campo.value ? "\n" : "") + linhaLimpa;
       }
 
       // Resumo Profissional
-    if (resumoProfissional.trim()) {
-  conteudo +=
-  `\nResumo Profissional:\n${resumoProfissional}\n`;
-  }
+      else if (secaoAtual === "resumo" && linhaLimpa) {
+        const campo =
+          document.getElementById("resumoProfissional");
 
-// Projetos
-else if (secaoAtual === "projetos" && linha.trim().startsWith("-")) {
-  addProjeto();
-  ultimaDiv = document.querySelector("#projetos div:last-child");
-  ultimaDiv.querySelector("input[placeholder='Título do Projeto']").value = linha.replace("-", "").trim();
+        campo.value +=
+          (campo.value ? "\n" : "") + linhaLimpa;
+      }
 
-  // limpa objetivo do projeto para não acumular lixo
-  ultimaDiv.querySelector("textarea").value = "";
-}
-else if (secaoAtual === "projetos" && ultimaDiv && linha.trim() !== "") {
-  const t = linha.trim();
+      // Projetos
+      else if (
+        secaoAtual === "projetos" &&
+        linhaLimpa.startsWith("-")
+      ) {
+        addProjeto();
 
-  if (t.startsWith("Objetivo:")) {
-    const textarea = ultimaDiv.querySelector("textarea");
-    const texto = t.replace("Objetivo:", "").trim();
-    textarea.value += (textarea.value ? "\n" : "") + texto;
-  }
-  else if (t.startsWith("Tecnologias:")) {
-    ultimaDiv.querySelector("input[placeholder='Tecnologias/Ferramentas']").value =
-      t.replace("Tecnologias:", "").trim();
-  }
-  else if (t.startsWith("Link:")) {
-    ultimaDiv.querySelector("input[placeholder='Link do Projeto']").value =
-      t.replace("Link:", "").trim();
-  }
-  else {
-    // ✅ continuação do objetivo (linhas adicionais)
-    const textarea = ultimaDiv.querySelector("textarea");
-    textarea.value += (textarea.value ? "\n" : "") + linha;
-  }
-}
+        ultimaDiv =
+          document.querySelector("#projetos div:last-child");
 
-     // Experiências
-else if (
-  secaoAtual === "experiencia" &&
-  (linha.trim().startsWith("-") || linha.trim().startsWith("•"))
-) {
-  addExperiencia();
-  ultimaDiv = document.querySelector("#experiencias div:last-child");
+        ultimaDiv.querySelector(
+          "input[placeholder='Título do Projeto']"
+        ).value = linhaLimpa.replace(/^-\s*/, "");
 
-  const partes = linha.trim().replace(/^[-•]\s*/, "").split(" em ");
-  const cargo = partes[0].split("(")[0].trim();
-  const empresa = partes[1]?.split("(")[0].trim() || "";
+        ultimaDiv.querySelector("textarea").value = "";
+      }
 
-  const datas = linha.match(/\((.*?)\)/)?.[1] || "";
-  let inicio = "";
-  let fim = "";
+      else if (
+        secaoAtual === "projetos" &&
+        ultimaDiv &&
+        linhaLimpa
+      ) {
+        if (linhaLimpa.startsWith("Objetivo:")) {
+          const textarea = ultimaDiv.querySelector("textarea");
 
-  if (datas.includes(" até ")) {
-    [inicio, fim] = datas.split(" até ");
-  } else if (datas.includes(" - ")) {
-    [inicio, fim] = datas.split(" - ");
-  }
+          const texto =
+            linhaLimpa.replace("Objetivo:", "").trim();
 
-  // campos
-  ultimaDiv.querySelector("input[placeholder='Cargo']").value = cargo;
-  ultimaDiv.querySelector("input[placeholder='Empresa']").value = empresa;
-  ultimaDiv.querySelector(".inicio").value = inicio || "";
-
-  const selectStatus = ultimaDiv.querySelector("select");
-
-  // ✅ define status corretamente
-  if (/momento/i.test(fim)) {
-    selectStatus.value = "atual";
-    ultimaDiv.querySelector(".fim").value = "";
-  } else {
-    selectStatus.value = "antigo";
-    ultimaDiv.querySelector(".fim").value = fim || "";
-  }
-
-  // ✅ APLICA o comportamento visual (ESSENCIAL)
-  toggleEmpregoAtual(selectStatus);
-}
-else if (
-  secaoAtual === "experiencia" &&
-  ultimaDiv &&
-  linha.trim() !== ""
-) {
-  ultimaDiv.querySelector("textarea").value += linha.trim() + "\n";
-}
-
-      // Formação
-else if (secaoAtual === "formacao" && (linha.trim().startsWith("-") || linha.trim().startsWith("•"))) {
-  addFormacao();
-  ultimaDiv = document.querySelector("#formacoes div:last-child");
-
-  const textoLinha = linha.trim().replace(/^[-•]\s*/, "");
-  const partes = textoLinha.split(" - ");
-
-  ultimaDiv.querySelector("input[placeholder='Curso']").value = (partes[0] || "").trim();
-  ultimaDiv.querySelector("input[placeholder='Instituição']").value = (partes[1] || "").split("(")[0].trim();
-
-  // ✅ pega o ÚLTIMO (...) no final da linha (evita pegar (CST) do curso)
-  const anoOuTermino = textoLinha.match(/\(([^()]*)\)\s*$/)?.[1] || "";
-
-  const select = ultimaDiv.querySelector("select");
-
-  if (/^\d{4}$/.test(anoOuTermino.trim())) {
-    select.value = "concluido";
-    toggleFormacaoAno(select); // ✅ mostra input .ano
-    ultimaDiv.querySelector(".ano").value = anoOuTermino.trim();
-  } else if (anoOuTermino) {
-    select.value = "cursando";
-    toggleFormacaoAno(select); // ✅ mostra input .termino
-    ultimaDiv.querySelector(".termino").value = anoOuTermino.replace("Previsão:", "").trim();
-  }
-}
-
-// Habilidades (compatível com addHabilidade: placeholder="Habilidade")
-else if (secaoAtual === "habilidade" && /^[-•]\s*/.test(linha.trim())) {
-  addHabilidade();
-  ultimaDiv = document.querySelector("#habilidades div:last-child");
-
-  const texto = linha.trim().replace(/^[-•]\s*/, "").trim();
-
-  const inputHab = ultimaDiv.querySelector("input[placeholder='Habilidade']") 
-                || ultimaDiv.querySelector("input");
-
-  if (inputHab) inputHab.value = texto;
-}
-
-
-      // Cursos
-else if (secaoAtual === "curso" && (linha.trim().startsWith("-") || linha.trim().startsWith("•"))) {
-  addCurso();
-  ultimaDiv = document.querySelector("#cursos div:last-child");
-
-  const textoLinha = linha.trim().replace(/^[-•]\s*/, "");
-  const partes = textoLinha.split(" - ");
-
-  ultimaDiv.querySelector("input[placeholder='Nome do Curso']").value = (partes[0] || "").trim();
-  ultimaDiv.querySelector("input[placeholder='Instituição']").value = (partes[1] || "").split("(")[0].trim();
-
-  // ✅ pega o ÚLTIMO (...) no final da linha (evita pegar parênteses do nome)
-  const anoOuTermino = textoLinha.match(/\(([^()]*)\)\s*$/)?.[1] || "";
-
-  const select = ultimaDiv.querySelector("select");
-
-  if (/^\d{4}$/.test(anoOuTermino.trim())) {
-    select.value = "concluido";
-    toggleCursoStatus(select); // ✅ mostra input .ano
-    ultimaDiv.querySelector(".ano").value = anoOuTermino.trim();
-  } else if (anoOuTermino) {
-    select.value = "cursando";
-    toggleCursoStatus(select); // ✅ mostra input .termino
-    ultimaDiv.querySelector(".termino").value = anoOuTermino.replace("Previsão:", "").trim();
-  }
-}
-
-      // Idiomas
-else if (secaoAtual === "idioma" && (linha.trim().startsWith("-") || linha.trim().startsWith("•"))) {
-  addIdioma();
-  ultimaDiv = document.querySelector("#idiomas div:last-child");
-  const partes = linha.trim().replace(/^[-•]\s*/, "").split("(");
-
-        const idiomaTxt = partes[0].trim();
-        const nivelTxt = partes[1]?.replace(")", "").trim().toLowerCase() || "";
-
-        if (idiomaTxt.toLowerCase() === "português") ultimaDiv.querySelector(".idioma").value = "portugues";
-        else if (idiomaTxt.toLowerCase() === "inglês") ultimaDiv.querySelector(".idioma").value = "ingles";
-        else if (idiomaTxt.toLowerCase() === "espanhol") ultimaDiv.querySelector(".idioma").value = "espanhol";
-        else {
-          ultimaDiv.querySelector(".idioma").value = "outro";
-          ultimaDiv.querySelector(".idiomaOutro").value = idiomaTxt;
+          textarea.value +=
+            (textarea.value ? "\n" : "") + texto;
         }
 
-        if (nivelTxt === "básico") ultimaDiv.querySelector(".nivel").value = "basico";
-        else if (nivelTxt === "intermediário") ultimaDiv.querySelector(".nivel").value = "intermediario";
-        else if (nivelTxt === "avançado") ultimaDiv.querySelector(".nivel").value = "avancado";
-        else if (nivelTxt === "nativo") ultimaDiv.querySelector(".nivel").value = "nativo";
-        else if (nivelTxt === "técnico") ultimaDiv.querySelector(".nivel").value = "tecnico";
+        else if (linhaLimpa.startsWith("Tecnologias:")) {
+          ultimaDiv.querySelector(
+            "input[placeholder='Tecnologias/Ferramentas']"
+          ).value = linhaLimpa
+            .replace("Tecnologias:", "")
+            .trim();
+        }
+
+        else if (linhaLimpa.startsWith("Link:")) {
+          ultimaDiv.querySelector(
+            "input[placeholder='Link do Projeto']"
+          ).value = linhaLimpa
+            .replace("Link:", "")
+            .trim();
+        }
+
+        else {
+          const textarea = ultimaDiv.querySelector("textarea");
+
+          textarea.value +=
+            (textarea.value ? "\n" : "") + linhaLimpa;
+        }
       }
-      
-      // Info Complementares
-      if (infoComplementares.trim()) {
-  conteudo += "\nInformações Complementares:\n";
-  conteudo +=
-  formatarInformacoesComplementares(infoComplementares);
-  conteudo += "\n";
-}
+
+      // Experiências
+      else if (
+        secaoAtual === "experiencia" &&
+        (linhaLimpa.startsWith("-") ||
+         linhaLimpa.startsWith("•"))
+      ) {
+        addExperiencia();
+
+        ultimaDiv =
+          document.querySelector("#experiencias div:last-child");
+
+        const texto =
+          linhaLimpa.replace(/^[-•]\s*/, "");
+
+        const correspondencia =
+          texto.match(/^(.*?) em (.*?) \((.*?)\)$/);
+
+        const cargo =
+          correspondencia?.[1]?.trim() || "";
+
+        const empresa =
+          correspondencia?.[2]?.trim() || "";
+
+        const datas =
+          correspondencia?.[3]?.trim() || "";
+
+        let inicio = "";
+        let fim = "";
+
+        if (datas.includes(" até ")) {
+          [inicio, fim] = datas.split(" até ");
+        }
+
+        else if (datas.includes(" - ")) {
+          [inicio, fim] = datas.split(" - ");
+        }
+
+        ultimaDiv.querySelector(
+          "input[placeholder='Cargo']"
+        ).value = cargo;
+
+        ultimaDiv.querySelector(
+          "input[placeholder='Empresa']"
+        ).value = empresa;
+
+        ultimaDiv.querySelector(".inicio").value =
+          converterMesAnoParaData(inicio);
+
+        const selectStatus =
+          ultimaDiv.querySelector("select");
+
+        if (/momento/i.test(fim)) {
+          selectStatus.value = "atual";
+          ultimaDiv.querySelector(".fim").value = "";
+        }
+
+        else {
+          selectStatus.value = "antigo";
+
+          ultimaDiv.querySelector(".fim").value =
+            converterMesAnoParaData(fim);
+        }
+
+        toggleEmpregoAtual(selectStatus);
+      }
+
+      else if (
+        secaoAtual === "experiencia" &&
+        ultimaDiv &&
+        linhaLimpa
+      ) {
+        ultimaDiv.querySelector("textarea").value +=
+          (ultimaDiv.querySelector("textarea").value ? "\n" : "") +
+          linhaLimpa;
+      }
+
+      // Formação
+      else if (
+        secaoAtual === "formacao" &&
+        (linhaLimpa.startsWith("-") ||
+         linhaLimpa.startsWith("•"))
+      ) {
+        addFormacao();
+
+        ultimaDiv =
+          document.querySelector("#formacoes div:last-child");
+
+        const textoLinha =
+          linhaLimpa.replace(/^[-•]\s*/, "");
+
+        const partes = textoLinha.split(" - ");
+
+        ultimaDiv.querySelector(
+          "input[placeholder='Curso']"
+        ).value = (partes[0] || "").trim();
+
+        ultimaDiv.querySelector(
+          "input[placeholder='Instituição']"
+        ).value = (partes[1] || "")
+          .split("(")[0]
+          .trim();
+
+        const anoOuTermino =
+          textoLinha.match(/\(([^()]*)\)\s*$/)?.[1] || "";
+
+        const select = ultimaDiv.querySelector("select");
+
+        if (/^\d{4}$/.test(anoOuTermino.trim())) {
+          select.value = "concluido";
+          toggleFormacaoAno(select);
+
+          ultimaDiv.querySelector(".ano").value =
+            anoOuTermino.trim();
+        }
+
+        else if (anoOuTermino) {
+          select.value = "cursando";
+          toggleFormacaoAno(select);
+
+          ultimaDiv.querySelector(".termino").value =
+            anoOuTermino
+              .replace("Previsão:", "")
+              .trim();
+        }
+      }
+
+      // Habilidades
+      else if (
+        secaoAtual === "habilidade" &&
+        /^[-•]\s*/.test(linhaLimpa)
+      ) {
+        addHabilidade();
+
+        ultimaDiv =
+          document.querySelector("#habilidades div:last-child");
+
+        const texto =
+          linhaLimpa.replace(/^[-•]\s*/, "").trim();
+
+        const inputHab =
+          ultimaDiv.querySelector(
+            "input[placeholder='Habilidade']"
+          ) || ultimaDiv.querySelector("input");
+
+        if (inputHab) inputHab.value = texto;
+      }
+
+      // Cursos
+      else if (
+        secaoAtual === "curso" &&
+        (linhaLimpa.startsWith("-") ||
+         linhaLimpa.startsWith("•"))
+      ) {
+        addCurso();
+
+        ultimaDiv =
+          document.querySelector("#cursos div:last-child");
+
+        const textoLinha =
+          linhaLimpa.replace(/^[-•]\s*/, "");
+
+        const partes = textoLinha.split(" - ");
+
+        ultimaDiv.querySelector(
+          "input[placeholder='Nome do Curso']"
+        ).value = (partes[0] || "").trim();
+
+        ultimaDiv.querySelector(
+          "input[placeholder='Instituição']"
+        ).value = (partes[1] || "")
+          .split("(")[0]
+          .trim();
+
+        const anoOuTermino =
+          textoLinha.match(/\(([^()]*)\)\s*$/)?.[1] || "";
+
+        const select = ultimaDiv.querySelector("select");
+
+        if (/^\d{4}$/.test(anoOuTermino.trim())) {
+          select.value = "concluido";
+          toggleCursoStatus(select);
+
+          ultimaDiv.querySelector(".ano").value =
+            anoOuTermino.trim();
+        }
+
+        else if (anoOuTermino) {
+          select.value = "cursando";
+          toggleCursoStatus(select);
+
+          ultimaDiv.querySelector(".termino").value =
+            anoOuTermino
+              .replace("Previsão:", "")
+              .trim();
+        }
+      }
+
+      // Idiomas
+      else if (
+        secaoAtual === "idioma" &&
+        (linhaLimpa.startsWith("-") ||
+         linhaLimpa.startsWith("•"))
+      ) {
+        addIdioma();
+
+        ultimaDiv =
+          document.querySelector("#idiomas div:last-child");
+
+        const texto =
+          linhaLimpa.replace(/^[-•]\s*/, "");
+
+        const correspondencia =
+          texto.match(/^(.*?)\s*\((.*?)\)$/);
+
+        const idiomaTxt =
+          correspondencia?.[1]?.trim() || texto.trim();
+
+        const nivelTxt =
+          correspondencia?.[2]?.trim().toLowerCase() || "";
+
+        const idiomaSelect =
+          ultimaDiv.querySelector(".idioma");
+
+        if (idiomaTxt.toLowerCase() === "português") {
+          idiomaSelect.value = "portugues";
+        }
+
+        else if (idiomaTxt.toLowerCase() === "inglês") {
+          idiomaSelect.value = "ingles";
+        }
+
+        else if (idiomaTxt.toLowerCase() === "espanhol") {
+          idiomaSelect.value = "espanhol";
+        }
+
+        else {
+          idiomaSelect.value = "outro";
+
+          ultimaDiv.querySelector(".idiomaOutro").value =
+            idiomaTxt;
+
+          toggleIdiomaOutro(idiomaSelect);
+        }
+
+        const nivelSelect =
+          ultimaDiv.querySelector(".nivel");
+
+        if (nivelTxt === "básico") {
+          nivelSelect.value = "basico";
+        }
+
+        else if (nivelTxt === "intermediário") {
+          nivelSelect.value = "intermediario";
+        }
+
+        else if (nivelTxt === "avançado") {
+          nivelSelect.value = "avancado";
+        }
+
+        else if (nivelTxt === "nativo") {
+          nivelSelect.value = "nativo";
+        }
+
+        else if (nivelTxt === "técnico") {
+          nivelSelect.value = "tecnico";
+        }
+      }
+
+      // Informações Complementares
+      else if (
+        secaoAtual === "informacoesComplementares" &&
+        linhaLimpa
+      ) {
+        const campo =
+          document.getElementById(
+            "informacoesComplementares"
+          );
+
+        const textoSemMarcador =
+          linhaLimpa.replace(/^[•-]\s*/, "");
+
+        campo.value +=
+          (campo.value ? "\n" : "") + textoSemMarcador;
+      }
     });
 
     atualizarPreview();
   };
+
   reader.readAsText(file, "utf-8");
+
+  // Permite importar novamente o mesmo arquivo
+  event.target.value = "";
 }
